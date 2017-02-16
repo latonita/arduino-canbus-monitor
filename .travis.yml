@@ -21,7 +21,7 @@ addons:
       name: "latonita/arduino-canbus-monitor"
       description: "Build submitted via Travis CI"
     notification_email: latonita@yandex.ru
-    build_command_prepend: ""
+    build_command_prepend: "cov-configure --comptype gcc --compiler avr-gcc --template"
     build_command:   "arduino --verify --board arduino:avr:uno arduino-canbus-monitor.ino"
     branch_pattern: coverity_scan
 
@@ -32,3 +32,16 @@ notifications:
   email:
     on_success: change
     on_failure: change
+    
+    
+after_success:
+  - find /usr/local/bin/arduino | grep avr-gcc
+  - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/build-log.txt
+  - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/scm_log.txt
+  
+  
+after_failure:
+  - find /usr/local/bin/arduino | grep avr-gcc
+  - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/build-log.txt
+  - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/scm_log.txt
+  
