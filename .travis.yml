@@ -7,6 +7,17 @@ before_install:
   - tar xf arduino-1.6.5-linux64.tar.xz
   - sudo mv arduino-1.6.5 /usr/local/share/arduino
   - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
+
+addons:
+  coverity_scan:
+    project:
+      name: "latonita/arduino-canbus-monitor"
+      description: "Build submitted via Travis CI"
+    notification_email: latonita@yandex.ru
+    build_command_prepend: "cov-configure --comptype gcc --compiler /usr/local/share/arduino/hardware/tools/avr/bin/avr-gcc --template"
+    build_command:   "arduino --verify --board arduino:avr:uno arduino-canbus-monitor.ino"
+    branch_pattern: coverity_scan
+
 script:
   - arduino --verify --board arduino:avr:uno arduino-canbus-monitor.ino
 #  - sonar-scanner
