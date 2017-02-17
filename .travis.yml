@@ -33,13 +33,3 @@ notifications:
     on_success: change
     on_failure: change
     
-    
-after_success:
-#   - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/build-log.txt
-  - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/scm_log.txt
-  
-  
-after_failure:
-#  - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/build-log.txt
-  - cat /home/travis/build/latonita/arduino-canbus-monitor/cov-int/scm_log.txt
-  
