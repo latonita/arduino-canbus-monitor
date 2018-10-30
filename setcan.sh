@@ -57,7 +57,7 @@ main()
 {
 
 	if [ -z "$(ip link show | ack CAN_UNO)" ];then
-		if [ -e serial/by-id/usb-Arduino__www.arduino.cc__0043_55731323935351715112-if00 ];then
+		if [ -e /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_55731323935351715112-if00 ];then
 			setup $@
 		else
 			echo "Arduino UNO havn't been connected!"
