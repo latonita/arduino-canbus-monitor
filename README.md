@@ -10,7 +10,7 @@ As for PC counterpart software I personally used and can recommend two tools:
 
 2) [Windows] CAN-COOL (by MHS Elektronik), open source, but unfortunaly available only in German. Download link: http://www.mhs-elektronik.de/index.php?module=content&action=show&page=can_cool  (Make sure you select RS232 and SL-CAN protocol and then click hardware bus reset icon on a toolbar)
 
-3) [Linux] Please dig into direction of SLCAN/SocketCAN, but start from https://github.com/linux-can/can-utils
+3) [Linux] SLCAN/SocketCAN can be used https://github.com/linux-can/can-utils. See details in the end of this README file
 
 This monitor uses CAN BUS library forked from https://github.com/Seeed-Studio/CAN_BUS_Shield.
 
@@ -57,6 +57,36 @@ CMD | IMPLEMENTED | SYNTAX               | DESCRIPTION
 'v' |   YES       |   V[CR]                Get Version number of both CAN232 hardware and software
 'N' |   YES       |   N[CR]                Get Serial number of the CAN232.
 'Z' |   YES+      |   Zn[CR]               Sets Time Stamp ON/OFF for received frames only. EXTENSION to LAWICEL: Z2 - millis() timestamp w/o standard 60000ms cycle
-'Q' |   YES  todo |       Qn[CR]               Auto Startup feature (from power on). 
+'Q' |   YES  todo |   Qn[CR]               Auto Startup feature (from power on). 
 
 ```
+
+## Linux SLCAN instructions
+### Prerequisites
+Install `can-utils` first. 
+On Ubuntu and other Debian-based distros `can-utils` package is included into standard repositories:
+```
+sudo apt install can-utils
+```
+For other distros please follow respective instructions, start from here https://github.com/linux-can/can-utils
+
+### Create CAN device
+```
+sudo slcan_attach -f -s4 -o /dev/ttyUSB0
+sudo slcand -S 115200 /dev/ttyUSB0 can0  
+sudo ifconfig can0 up
+```
+where 115200 is port speed, `/dev/ttyUSB0` - name of your arduino device. can be different 
+
+### To dump running traffic 
+```
+candump can0
+```
+
+### To delete CAN device
+```
+sudo ifconfig can0 down
+sudo killall slcand
+```
+
+
