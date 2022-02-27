@@ -6,7 +6,7 @@ This software implements CAN ASCII / Serial CAN / SLCAN protocol compatible with
 
 As for PC counterpart software I personally used and can recommend two tools:
 
-1) [Windows] CANHacker tool v.2.00.01 (by fuchs) to sniff and visualize data on the bus. You can download CANHacker tool from this forum page: http://www.canhack.net/viewforum.php?f=25&sid=ac01d465f19e088cb160cab630561607
+1) [Windows] CANHacker tool v.2.00.01 (by fuchs) to sniff and visualize data on the bus. You can download CANHacker tool from this forum page: http://www.canhack.net/viewforum.php?f=25&sid=ac01d465f19e088cb160cab630561607 (P.S. Looks like canhack.net no longer operating, here is a copy of installation file: https://github.com/latonita/arduino-canbus-monitor/blob/master/CANHackerV2.00.01.exe)
 
 2) [Windows] CAN-COOL (by MHS Elektronik), open source, but unfortunaly available only in German. Download link: http://www.mhs-elektronik.de/index.php?module=content&action=show&page=can_cool  (Make sure you select RS232 and SL-CAN protocol and then click hardware bus reset icon on a toolbar)
 
