@@ -154,6 +154,11 @@ const INT32U lw232SerialBaudRates[] //PROGMEM
 const INT8U lw232CanBaudRates[] //PROGMEM
 = { CAN_10KBPS, CAN_20KBPS, CAN_50KBPS, CAN_100KBPS, CAN_125KBPS, CAN_250KBPS, CAN_500KBPS, CAN_500KBPS /*CAN_800KBPS*/, CAN_1000KBPS, CAN_83K3BPS };
 
+enum OutputProtocol : uint8_t {
+    PROTO_LAWICEL = 0x00,
+    PROTO_GVRET = 0x01,
+};
+
 class Can232
 {
 public:
@@ -161,6 +166,7 @@ public:
     static void setFilter(INT8U (*userFunc)(INT32U));
     static void loop();
     static void serialEvent();
+    static void setOutputProtocol(OutputProtocol proto);
 
 private:
     static Can232* _instance;
@@ -193,6 +199,8 @@ private:
 
     String inputString = "";         // a string to hold incoming data
     boolean stringComplete = false;  // whether the string is complete
+
+    OutputProtocol outputProtocol = OutputProtocol::PROTO_LAWICEL;
 
     INT8U parseAndRunCommand();
     INT8U exec();

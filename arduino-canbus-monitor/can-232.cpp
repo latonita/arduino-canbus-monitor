@@ -62,6 +62,10 @@ void Can232::setFilter(INT8U (*userFunc)(INT32U)) {
     instance()->setFilterFunc(userFunc);
 }
 
+void Can232::setOutputProtocol(OutputProtocol proto) {
+  instance()->outputProtocol = proto;
+}
+
 void Can232::loop() {
     instance()->loopFunc();
 }
@@ -104,9 +108,10 @@ void Can232::loopFunc() {
         int recv = 0;
         while (CAN_MSGAVAIL == checkReceive() && recv++<5) {
             dbg0('+');
-            if (CAN_OK == receiveSingleFrame()) {
-                Serial.write(LW232_CR);
-            }
+            receiveSingleFrame();
+            // if (CAN_OK == receiveSingleFrame()) {
+            //     Serial.write(LW232_CR);
+            // }
         }
         Serial.flush();
     }
@@ -398,51 +403,86 @@ INT8U Can232::readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[]) {
 #endif
 }
 
+void writeLawicelLine(INT32U id, INT8U ext, INT8U len, INT8U *buf, INT8U timestamp) {
+    INT8U idx = 0;
 
+    if (ext) {
+        Serial.print(LW232_TR29);
+        HexHelper::printFullByte(HIGH_BYTE(HIGH_WORD(id)));
+        HexHelper::printFullByte(LOW_BYTE(HIGH_WORD(id)));
+        HexHelper::printFullByte(HIGH_BYTE(LOW_WORD(id)));
+        HexHelper::printFullByte(LOW_BYTE(LOW_WORD(id)));
+    } else {
+        Serial.print(LW232_TR11);
+        HexHelper::printNibble(HIGH_BYTE(LOW_WORD(id)));
+        HexHelper::printFullByte(LOW_BYTE(LOW_WORD(id)));
+    }
+    //write data len
+    HexHelper::printNibble(len);
+    //write data
+    for (idx = 0; idx < len; idx++) {
+        HexHelper::printFullByte(buf[idx]);
+    }
+    //write timestamp if needed
+    if (timestamp != LW232_TIMESTAMP_OFF) {
+        INT32U time = millis();
+        if (timestamp == LW232_TIMESTAMP_ON_NORMAL) { 
+            // standard LAWICEL protocol. two bytes.
+            time %= 60000;  
+        } else {
+            // non standard protocol - 4 bytes timestamp
+            HexHelper::printFullByte(HIGH_BYTE(HIGH_WORD(time)));
+            HexHelper::printFullByte(LOW_BYTE(HIGH_WORD(time)));
+        }
+        HexHelper::printFullByte(HIGH_BYTE(LOW_WORD(time)));
+        HexHelper::printFullByte(LOW_BYTE(LOW_WORD(time)));
+    }
+    Serial.print(LW232_CR);
+}
+
+void writeGVRETLine(INT32U id, INT8U ext, INT8U len, INT8U *buf, INT8U timestamp) {
+    INT8U idx = 0;
+
+//    Serial.printf("%d - %x", micros(), id)
+    Serial.print(micros());
+    Serial.print(" - ");
+
+    HexHelper::printFullByte(HIGH_BYTE(HIGH_WORD(id)));
+    HexHelper::printFullByte(LOW_BYTE(HIGH_WORD(id)));
+    HexHelper::printFullByte(HIGH_BYTE(LOW_WORD(id)));
+    HexHelper::printFullByte(LOW_BYTE(LOW_WORD(id)));
+
+//    Serial.printf(" %c ", ext ? 'X' : 'S');
+    if (ext) {
+        Serial.print(" X ");
+    } else {
+        Serial.print(" S ");
+    }
+
+//    Serial.printf("%i %i", 1, len);
+    Serial.print("0 ");
+    Serial.print(len);
+
+    for (idx = 0; idx < len; idx++) {
+        Serial.print(" ");
+        HexHelper::printFullByte(buf[idx]);
+    }
+    Serial.print("\r\n");
+}
 
 INT8U Can232::receiveSingleFrame() {
     INT8U ret = LW232_OK;
-    INT8U idx = 0;
     if (CAN_OK == readMsgBufID(&lw232CanId, &lw232PacketLen, lw232Buffer)) {
         if (lw232CanId > 0x1FFFFFFF) {
             ret = LW232_ERR; // address if totally wrong
-        }
-        else if (checkPassFilter(lw232CanId)) {// do we want to skip some addresses?
-            if (isExtendedFrame()) {
-                Serial.print(LW232_TR29);
-                HexHelper::printFullByte(HIGH_BYTE(HIGH_WORD(lw232CanId)));
-                HexHelper::printFullByte(LOW_BYTE(HIGH_WORD(lw232CanId)));
-                HexHelper::printFullByte(HIGH_BYTE(LOW_WORD(lw232CanId)));
-                HexHelper::printFullByte(LOW_BYTE(LOW_WORD(lw232CanId)));
-            }
-            else {
-                Serial.print(LW232_TR11);
-                HexHelper::printNibble(HIGH_BYTE(LOW_WORD(lw232CanId)));
-                HexHelper::printFullByte(LOW_BYTE(LOW_WORD(lw232CanId)));
-            }
-            //write data len
-            HexHelper::printNibble(lw232PacketLen);
-            //write data
-            for (idx = 0; idx < lw232PacketLen; idx++) {
-                HexHelper::printFullByte(lw232Buffer[idx]);
-            }
-            //write timestamp if needed
-            if (lw232TimeStamp != LW232_TIMESTAMP_OFF) {
-                INT32U time = millis();
-                if (lw232TimeStamp == LW232_TIMESTAMP_ON_NORMAL) { 
-                    // standard LAWICEL protocol. two bytes.
-                    time %= 60000;  
-                } else {
-                    // non standard protocol - 4 bytes timestamp
-                    HexHelper::printFullByte(HIGH_BYTE(HIGH_WORD(time)));
-                    HexHelper::printFullByte(LOW_BYTE(HIGH_WORD(time)));
-                }
-                HexHelper::printFullByte(HIGH_BYTE(LOW_WORD(time)));
-                HexHelper::printFullByte(LOW_BYTE(LOW_WORD(time)));
+        } else if (checkPassFilter(lw232CanId)) {// do we want to skip some addresses?
+            if (outputProtocol == PROTO_LAWICEL) {
+                writeLawicelLine(lw232CanId, isExtendedFrame(), lw232PacketLen, lw232Buffer, lw232TimeStamp);
+            } else {
+                writeGVRETLine(lw232CanId, isExtendedFrame(), lw232PacketLen, lw232Buffer, lw232TimeStamp);
             }
         }
-    }
-    else {
+    } else {
         ret = LW232_ERR;
     }
     return ret;
