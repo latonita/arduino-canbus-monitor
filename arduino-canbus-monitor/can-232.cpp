@@ -177,7 +177,7 @@ INT8U Can232::parseAndRunCommand() {
             }
         }
         else {
-            ret = LW232_ERR;
+            ret = LW232_OK;
         }
         break;
         case LW232_CMD_LISTEN:
