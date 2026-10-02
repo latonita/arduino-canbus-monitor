@@ -104,6 +104,8 @@
 #define LW232_FLAG  'F'
 #define LW232_TR11  't'
 #define LW232_TR29  'T'
+#define LW232_RTR11 'r'
+#define LW232_RTR29 'R'
 
 #define LW232_RET_ASCII_OK             0x0D
 #define LW232_RET_ASCII_ERROR          0x07
