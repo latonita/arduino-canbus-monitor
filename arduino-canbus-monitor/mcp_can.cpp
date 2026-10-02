@@ -687,6 +687,11 @@ INT8U MCP_CAN::begin(INT8U speedset, const INT8U clockset)
     else return CAN_FAILINIT;
 }
 
+INT8U MCP_CAN::setMode(const INT8U mode)
+{
+    return mcp2515_setCANCTRL_Mode(mode) == MCP2515_OK ? CAN_OK : CAN_FAIL;
+}
+
 /*********************************************************************************************************
 ** Function name:           init_Mask
 ** Descriptions:            init canid Masks
