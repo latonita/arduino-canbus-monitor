@@ -112,7 +112,7 @@
 
 #define LW232_STATUS_CAN_CLOSED        0x00
 #define LW232_STATUS_CAN_OPEN_NORMAL   0x01
-#define LW232_STATUS_CAN_OPEN_LISTEN   0x01
+#define LW232_STATUS_CAN_OPEN_LISTEN   0x02
 
 #define LW232_FRAME_MAX_LENGTH         0x08
 #define LW232_FRAME_MAX_SIZE           (sizeof("Tiiiiiiiildddddddddddddddd\r")+1)
@@ -202,7 +202,7 @@ private:
     INT8U receiveSingleFrame();
     INT8U isExtendedFrame();
     INT8U checkPassFilter(INT32U addr);
-    INT8U openCanBus();
+    INT8U openCanBus(INT8U mode);
     
     INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf);
 

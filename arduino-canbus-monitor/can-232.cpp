@@ -171,7 +171,7 @@ INT8U Can232::parseAndRunCommand() {
         case LW232_CMD_OPEN:
         // O[CR] Open the CAN channel in normal mode (sending & receiving).
         if (lw232CanChannelMode == LW232_STATUS_CAN_CLOSED) {
-            ret = openCanBus();
+            ret = openCanBus(MODE_NORMAL);
             if (ret == LW232_OK) {
               lw232CanChannelMode = LW232_STATUS_CAN_OPEN_NORMAL;
             }
@@ -183,7 +183,7 @@ INT8U Can232::parseAndRunCommand() {
         case LW232_CMD_LISTEN:
         // L[CR] Open the CAN channel in listen only mode (receiving).
         if (lw232CanChannelMode == LW232_STATUS_CAN_CLOSED) {
-            ret = openCanBus();
+            ret = openCanBus(MODE_LISTENONLY);
             if (ret == LW232_OK) {
               lw232CanChannelMode = LW232_STATUS_CAN_OPEN_LISTEN;
             }
@@ -465,10 +465,11 @@ INT8U Can232::checkPassFilter(INT32U addr) {
 	return (*userAddressFilterFunc)(addr);
 }
 
-INT8U Can232::openCanBus() {
+INT8U Can232::openCanBus(INT8U mode) {
     INT8U ret = LW232_OK;
 #ifndef _MCP_FAKE_MODE_
-    if (CAN_OK != lw232CAN.begin(lw232CanSpeedSelection, lw232McpModuleClock))
+    if (CAN_OK != lw232CAN.begin(lw232CanSpeedSelection, lw232McpModuleClock) ||
+        CAN_OK != lw232CAN.setMode(mode))
         ret = LW232_ERR;
 #endif
     return ret;
