@@ -461,6 +461,15 @@ INT8U Can232::isExtendedFrame() {
 }
 
 
+INT8U Can232::isRemoteRequest() {
+#ifndef _MCP_FAKE_MODE_
+    return lw232CAN.isRemoteRequest();
+#else
+    return 0; // fake mode never generates remote frames
+#endif
+}
+
+
 INT8U Can232::checkPassFilter(INT32U addr) {
 	if (userAddressFilterFunc == 0) 
 		return LW232_FILTER_PROCESS;

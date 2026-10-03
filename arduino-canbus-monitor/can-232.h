@@ -203,6 +203,7 @@ private:
     INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[]);
     INT8U receiveSingleFrame();
     INT8U isExtendedFrame();
+    INT8U isRemoteRequest();
     INT8U checkPassFilter(INT32U addr);
     INT8U openCanBus();
     
