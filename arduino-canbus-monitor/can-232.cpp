@@ -408,23 +408,26 @@ INT8U Can232::receiveSingleFrame() {
             ret = LW232_ERR; // address if totally wrong
         }
         else if (checkPassFilter(lw232CanId)) {// do we want to skip some addresses?
+            INT8U remote = isRemoteRequest();
             if (isExtendedFrame()) {
-                Serial.print(LW232_TR29);
+                Serial.print(remote ? LW232_RTR29 : LW232_TR29);
                 HexHelper::printFullByte(HIGH_BYTE(HIGH_WORD(lw232CanId)));
                 HexHelper::printFullByte(LOW_BYTE(HIGH_WORD(lw232CanId)));
                 HexHelper::printFullByte(HIGH_BYTE(LOW_WORD(lw232CanId)));
                 HexHelper::printFullByte(LOW_BYTE(LOW_WORD(lw232CanId)));
             }
             else {
-                Serial.print(LW232_TR11);
+                Serial.print(remote ? LW232_RTR11 : LW232_TR11);
                 HexHelper::printNibble(HIGH_BYTE(LOW_WORD(lw232CanId)));
                 HexHelper::printFullByte(LOW_BYTE(LOW_WORD(lw232CanId)));
             }
             //write data len
             HexHelper::printNibble(lw232PacketLen);
             //write data
-            for (idx = 0; idx < lw232PacketLen; idx++) {
-                HexHelper::printFullByte(lw232Buffer[idx]);
+            if (!remote) {
+                for (idx = 0; idx < lw232PacketLen; idx++) {
+                    HexHelper::printFullByte(lw232Buffer[idx]);
+                }
             }
             //write timestamp if needed
             if (lw232TimeStamp != LW232_TIMESTAMP_OFF) {
@@ -454,6 +457,15 @@ INT8U Can232::isExtendedFrame() {
     return lw232CAN.isExtendedFrame();
 #else
     return lw232CanId > 0x7FF ? 1 : 0; //simple hack for fake mode
+#endif
+}
+
+
+INT8U Can232::isRemoteRequest() {
+#ifndef _MCP_FAKE_MODE_
+    return lw232CAN.isRemoteRequest();
+#else
+    return 0; // fake mode never generates remote frames
 #endif
 }
 

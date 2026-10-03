@@ -104,6 +104,8 @@
 #define LW232_FLAG  'F'
 #define LW232_TR11  't'
 #define LW232_TR29  'T'
+#define LW232_RTR11 'r'
+#define LW232_RTR29 'R'
 
 #define LW232_RET_ASCII_OK             0x0D
 #define LW232_RET_ASCII_ERROR          0x07
@@ -201,6 +203,7 @@ private:
     INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[]);
     INT8U receiveSingleFrame();
     INT8U isExtendedFrame();
+    INT8U isRemoteRequest();
     INT8U checkPassFilter(INT32U addr);
     INT8U openCanBus(INT8U mode);
     
